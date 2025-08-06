@@ -9,10 +9,10 @@ import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import { Filter, DollarSign, Briefcase, MapPin, RotateCcw } from 'lucide-react';
-import { AppContext } from '@/context/AppContext';
+
 
 const JobFilterSidebar = () => {
-const {user} =  useContext(AppContext)
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const searchQuery = searchParams.get('q') || '';

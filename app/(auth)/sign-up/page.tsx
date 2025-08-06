@@ -80,6 +80,7 @@ export default function SignupPage() {
     
     if (data.success) { // Now check the success property from your API
       setSuccess('Account created successfully!');
+      router.refresh()
       router.push("/");
       setFormData({ email: '', password: '', role: '' });
     } else {

@@ -90,6 +90,7 @@ export default function SigninPage() {
         const user = await getSession()
         console.log(user);
         setTimeout(() => {
+            router.refresh()
           router.push("/");
         }, 1500);
       } else {

@@ -7,8 +7,6 @@ import UnauthorizedAlert from "@/components/UnauthorizedAlert";
 export default async function Home({ searchParams }) {
   const searchParamsObj = await searchParams;
   const { q, employment_type, job_type, salary, error, userRole } = searchParamsObj;
-  console.log('Filters:', { q, employment_type, job_type, salary });
-  console.log('Error params:', { error, userRole });
 
   const getJobs = async () => {
     try {

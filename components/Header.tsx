@@ -4,7 +4,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import SearchForm from "./SearchForm";
-import { User, LogOut, Plus, Building } from "lucide-react";
+import { User, LogOut, Plus, Building, LogIn } from "lucide-react";
 import { useContext, useState, useEffect } from "react";
 import { AppContext } from "@/context/AppContext";
 import { Button } from "./ui/button";
@@ -17,13 +17,46 @@ export default function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasCompany, setHasCompany] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication status when component mounts and when user changes
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  useEffect(() => {
+    if (user?.id && user?.email) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+  }, [user]);
 
   // Check if user has a company
   useEffect(() => {
-    if (user?.role === "employer") {
+    if (user?.role === "employer" && isAuthenticated) {
       checkUserCompany();
     }
-  }, [user]);
+  }, [user, isAuthenticated]);
+
+  const checkAuthStatus = async () => {
+    try {
+      const sessionUser = await getSession();
+      if (sessionUser?.id && sessionUser?.email) {
+        setUser({
+          id: sessionUser.id,
+          email: sessionUser.email,
+          role: sessionUser.role || "",
+        });
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      console.error("Error checking auth status:", error);
+      setIsAuthenticated(false);
+    }
+  };
 
   const checkUserCompany = async () => {
     try {
@@ -41,7 +74,6 @@ export default function Header() {
 
       if (responseData.success) {
         console.log(responseData.hasCompany);
-
         setHasCompany(responseData.hasCompany);
       } else {
         console.error("API error:", responseData.error);
@@ -49,6 +81,10 @@ export default function Header() {
     } catch (error) {
       console.error("Error checking user company:", error);
     }
+  };
+
+  const handleLogin = () => {
+    router.push("/sign-in");
   };
 
   const handleLogout = async () => {
@@ -70,6 +106,7 @@ export default function Header() {
       const data = await response.json();
 
       if (data.success) {
+        setIsAuthenticated(false);
         // Redirect to login page or home page after successful logout
         router.push("/sign-in");
         router.refresh(); // Refresh to update the app state
@@ -208,71 +245,86 @@ export default function Header() {
           {/* Search Form using Shadcn */}
           <SearchForm />
 
-          {/* Profile Icon using Shadcn */}
+          {/* Profile Icon or Login Button */}
           <div className="flex items-center relative">
-            <div
-              className="cursor-pointer p-2 rounded-full"
-              onClick={() => setShowDropdown(!showDropdown)}
-            >
-              <User className="w-7 h-7 text-muted-foreground" />
-            </div>
-
-            {/* Dropdown Menu */}
-            {showDropdown && (
-              <div className="absolute right-0 top-12 bg-black border border-gray-200 rounded-lg shadow-lg w-64 z-50">
-                <div className="p-4 border-b border-gray-100">
-                  <p className="text-sm text-gray-500">{user?.email}</p>
-                  {user?.role && (
-                    <span className="inline-block px-2 py-1 mt-2 text-xs bg-blue-100 text-blue-800 rounded-full capitalize">
-                      {user.role}
-                    </span>
-                  )}
+            {isAuthenticated && user?.email ? (
+              // Show user dropdown when authenticated
+              <>
+                <div
+                  className="cursor-pointer p-2 rounded-full hover:bg-muted/50 transition-colors"
+                  onClick={() => setShowDropdown(!showDropdown)}
+                >
+                  <User className="w-7 h-7 text-muted-foreground" />
                 </div>
 
-                <div className="p-2 flex flex-col ">
-                  {user?.role === "employer" ? (
-                    <>
-                      {hasCompany ? (
-                        <Button
-                          variant="ghost"
-                          className="w-[70%] justify-start gap-2 mb-1 bg-blue-400 text-white hover:bg-blue-500"
-                          onClick={() => {
-                            window.location.href = "/employer/jobs/create";
-                            setShowDropdown(false);
-                          }}
-                        >
-                          <Plus className="w-4 h-4" />
-                          Add Job
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          className="w-[70%] justify-start gap-2 mb-1 bg-blue-400 text-white hover:bg-blue-500"
-                          onClick={() => {
-                            window.location.href = "/employer/company/create";
-                            setShowDropdown(false);
-                          }}
-                        >
-                          <Building className="w-4 h-4" />
-                          Create Company
-                        </Button>
+                {/* Dropdown Menu */}
+                {showDropdown && (
+                  <div className="absolute right-0 top-12 bg-black border border-gray-200 rounded-lg shadow-lg w-64 z-50">
+                    <div className="p-4 border-b border-gray-100">
+                      <p className="text-sm text-gray-500">{user?.email}</p>
+                      {user?.role && (
+                        <span className="inline-block px-2 py-1 mt-2 text-xs bg-blue-100 text-blue-800 rounded-full capitalize">
+                          {user.role}
+                        </span>
                       )}
-                    </>
-                  ) : null}
+                    </div>
 
-                  <Button
-                    variant="ghost"
-                    className="w-[70%] justify-start gap-2 bg-red-400 text-white hover:bg-red-500"
-                    onClick={() => {
-                      handleLogout();
-                      setShowDropdown(false);
-                    }}
-                  >
-                    <LogOut className="w-4 h-4" />
-                    {isLoggingOut ? "Logging out..." : "Log Out"}
-                  </Button>
-                </div>
-              </div>
+                    <div className="p-2 flex flex-col">
+                      {user?.role === "employer" ? (
+                        <>
+                          {hasCompany ? (
+                            <Button
+                              variant="ghost"
+                              className="w-[70%] justify-start gap-2 mb-1 bg-blue-400 text-white hover:bg-blue-500"
+                              onClick={() => {
+                                window.location.href = "/employer/jobs/create";
+                                setShowDropdown(false);
+                              }}
+                            >
+                              <Plus className="w-4 h-4" />
+                              Add or view Jobs
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              className="w-[70%] justify-start gap-2 mb-1 bg-blue-400 text-white hover:bg-blue-500"
+                              onClick={() => {
+                                window.location.href = "/employer/company/create";
+                                setShowDropdown(false);
+                              }}
+                            >
+                              <Building className="w-4 h-4" />
+                              Create Company
+                            </Button>
+                          )}
+                        </>
+                      ) : null}
+
+                      <Button
+                        variant="ghost"
+                        className="w-[70%] justify-start gap-2 bg-red-400 text-white hover:bg-red-500"
+                        onClick={() => {
+                          handleLogout();
+                          setShowDropdown(false);
+                        }}
+                      >
+                        <LogOut className="w-4 h-4" />
+                        {isLoggingOut ? "Logging out..." : "Log Out"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              // Show login button when not authenticated
+              <Button
+                variant="default"
+                className="flex items-center gap-2 bg-primary hover:bg-primary/90"
+                onClick={handleLogin}
+              >
+                <LogIn className="w-4 h-4" />
+                Login
+              </Button>
             )}
 
             {/* Overlay to close dropdown when clicking outside */}

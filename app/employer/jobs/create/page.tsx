@@ -30,6 +30,8 @@ export default function EmployerJobsDashboard() {
   const [jobs, setJobs] = useState([]);
   const [company, setCompany] = useState(null);
   const [showAddJobForm, setShowAddJobForm] = useState(false);
+  const [showEditJobForm, setShowEditJobForm] = useState(false);
+  const [editingJob, setEditingJob] = useState(null);
   const [alert, setAlert] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -197,6 +199,84 @@ export default function EmployerJobsDashboard() {
     setLoading(false);
   }
 }
+
+  const handleEditJob = (job) => {
+    setEditingJob(job);
+    setFormData({
+      title: job.title,
+      description: job.description,
+      location: job.location,
+      employment_type: job.employment_type,
+      job_type: job.job_type,
+      salary: job.salary.toString()
+    });
+    setShowEditJobForm(true);
+  };
+
+  const handleUpdateJob = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setAlert(null);
+
+    try {
+      const response = await fetch(`/api/company/job/${editingJob.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          salary: parseInt(formData.salary)
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setAlert({
+          type: "success",
+          message: "Job updated successfully!"
+        });
+        setTimeout(() => {
+          setAlert(null);
+        }, 3000);
+
+        // Reset form and close modal
+        setFormData({
+          title: '',
+          description: '',
+          location: '',
+          employment_type: '',
+          job_type: '',
+          salary: ''
+        });
+        setShowEditJobForm(false);
+        setEditingJob(null);
+
+        // Refresh jobs list
+        fetchCompanyJobs();
+      } else {
+        setAlert({
+          type: "error",
+          message: data.error || "Failed to update job"
+        });
+        setTimeout(() => {
+          setAlert(null);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error('Error updating job:', error);
+      setAlert({
+        type: "error",
+        message: "An unexpected error occurred"
+      });
+      setTimeout(() => {
+        setAlert(null);
+      }, 5000);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading && jobs.length === 0) {
     return (
@@ -398,6 +478,167 @@ export default function EmployerJobsDashboard() {
           </div>
         )}
 
+        {/* Edit Job Form Modal */}
+        {showEditJobForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <Card className="bg-gray-900 border-gray-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-white">Edit Job</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Update job posting details
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowEditJobForm(false);
+                    setEditingJob(null);
+                    setFormData({
+                      title: '',
+                      description: '',
+                      location: '',
+                      employment_type: '',
+                      job_type: '',
+                      salary: ''
+                    });
+                  }}
+                  className="text-white hover:bg-gray-800"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleUpdateJob} className="space-y-4">
+                  <div>
+                    <Label htmlFor="edit-title" className="text-white">Job Title *</Label>
+                    <Input
+                      id="edit-title"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleChange}
+                      placeholder="e.g., Senior Frontend Developer"
+                      className="bg-black border-gray-600 text-white"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="edit-description" className="text-white">Job Description *</Label>
+                    <Textarea
+                      id="edit-description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      placeholder="Describe the role, responsibilities, and what you're looking for"
+                      rows={3}
+                      className="bg-black border-gray-600 text-white"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="edit-location" className="text-white">Location *</Label>
+                      <Input
+                        id="edit-location"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        placeholder="City, State/Country"
+                        className="bg-black border-gray-600 text-white"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="edit-salary" className="text-white">Salary (Annual) *</Label>
+                      <Input
+                        id="edit-salary"
+                        name="salary"
+                        type="number"
+                        value={formData.salary}
+                        onChange={handleChange}
+                        placeholder="e.g., 75000"
+                        className="bg-black border-gray-600 text-white"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="edit-employment_type" className="text-white">Employment Type *</Label>
+                      <select
+                        id="edit-employment_type"
+                        name="employment_type"
+                        value={formData.employment_type}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 bg-black border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                      >
+                        <option value="">Select employment type</option>
+                        <option value="full-time">Full-time</option>
+                        <option value="part-time">Part-time</option>
+                        <option value="contract">Contract</option>
+                        <option value="internship">Internship</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="edit-job_type" className="text-white">Work Type *</Label>
+                      <select
+                        id="edit-job_type"
+                        name="job_type"
+                        value={formData.job_type}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 bg-black border border-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                      >
+                        <option value="">Select work type</option>
+                        <option value="Remote">Remote</option>
+                        <option value="On-site">On-site</option>
+                        <option value="Hybrid">Hybrid</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {loading ? 'Updating...' : 'Update Job'}
+                    </Button>
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setShowEditJobForm(false);
+                        setEditingJob(null);
+                        setFormData({
+                          title: '',
+                          description: '',
+                          location: '',
+                          employment_type: '',
+                          job_type: '',
+                          salary: ''
+                        });
+                      }}
+                      className="border-gray-600 text-white hover:bg-gray-800"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Jobs List */}
         {jobs.length === 0 ? (
           <Card className="bg-gray-900 border-gray-700">
@@ -458,11 +699,14 @@ export default function EmployerJobsDashboard() {
                   </div>
                   
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="border-gray-600 text-white hover:bg-gray-800">
+                    <Button 
+                      onClick={() => handleEditJob(job)}
+                      variant="outline" 
+                      size="sm" 
+                      className="border-gray-600 text-white hover:bg-gray-800"
+                      disabled={loading}
+                    >
                       Edit Job
-                    </Button>
-                    <Button variant="outline" size="sm" className="border-gray-600 text-white hover:bg-gray-800">
-                      View Applications
                     </Button>
                     <Button 
                       onClick={() => handleDeleteJob(job.id)} 
