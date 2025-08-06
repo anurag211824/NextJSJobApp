@@ -20,7 +20,7 @@ export const AppProvider = ({ children }) => {
         const user = await getSession();
         const id = user.id;
         console.log(id);
-        const response = await fetch(`api/user/${id}`);
+        const response = await fetch(`http://localhost:3000/api/user/${id}`);
         const responseData = await response.json();
         if (responseData.success) {
           setUser(responseData.data);

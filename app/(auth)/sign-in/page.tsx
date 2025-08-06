@@ -16,11 +16,11 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AppContext } from "@/context/AppContext";
 import { getSession } from "@/service/session";
+import { AppContext } from "@/context/AppContext";
 
 export default function SigninPage() {
-  const {setUser} = useContext(AppContext)
+  const {setUser} =  useContext(AppContext)
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
@@ -81,6 +81,11 @@ export default function SigninPage() {
       const data = await response.json();
 
       if (data.success) {
+         setUser({
+        id: data.data.id,
+        email: data.data.email,
+        role: data.data.role,
+      });
         setSuccess("Sign in successful! Redirecting...");
         const user = await getSession()
         console.log(user);
