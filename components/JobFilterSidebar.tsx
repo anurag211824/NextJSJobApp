@@ -201,6 +201,8 @@ const JobFilterSidebar = () => {
         >
           Apply Filters
         </Button>
+
+       
       </div>
     </div>
   );

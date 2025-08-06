@@ -1,12 +1,18 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 //@ts-nocheck
-'use client'
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { MapPin, Building, Clock, Briefcase, Users } from 'lucide-react';
-import Link from 'next/link';
+"use client";
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { MapPin, Building, Clock, Briefcase, Users } from "lucide-react";
+import Link from "next/link";
 
 const Jobgrid = ({ jobs }) => {
   if (!jobs || jobs.length === 0) {
@@ -15,7 +21,10 @@ const Jobgrid = ({ jobs }) => {
         <div className="text-muted-foreground">
           <Briefcase className="w-16 h-16 mx-auto mb-4 opacity-50" />
           <h3 className="text-xl font-semibold mb-2">No jobs found</h3>
-          <p>Try adjusting your search criteria or check back later for new opportunities.</p>
+          <p>
+            Try adjusting your search criteria or check back later for new
+            opportunities.
+          </p>
         </div>
       </div>
     );
@@ -30,32 +39,31 @@ const Jobgrid = ({ jobs }) => {
 
   const getEmploymentTypeColor = (type) => {
     switch (type.toLowerCase()) {
-      case 'full-time':
-        return 'bg-green-100 text-green-800 hover:bg-green-200';
-      case 'part-time':
-        return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
-      case 'contract':
-        return 'bg-orange-100 text-orange-800 hover:bg-orange-200';
-      case 'internship':
-        return 'bg-purple-100 text-purple-800 hover:bg-purple-200';
+      case "full-time":
+        return "bg-green-100 text-green-800 hover:bg-green-200";
+      case "part-time":
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200";
+      case "contract":
+        return "bg-orange-100 text-orange-800 hover:bg-orange-200";
+      case "internship":
+        return "bg-purple-100 text-purple-800 hover:bg-purple-200";
       default:
-        return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
     }
   };
 
   const getJobTypeColor = (type) => {
     switch (type.toLowerCase()) {
-      case 'remote':
-        return 'bg-emerald-100 text-emerald-800';
-      case 'on-site':
-        return 'bg-blue-100 text-blue-800';
-      case 'hybrid':
-        return 'bg-violet-100 text-violet-800';
+      case "remote":
+        return "bg-emerald-100 text-emerald-800";
+      case "on-site":
+        return "bg-blue-100 text-blue-800";
+      case "hybrid":
+        return "bg-violet-100 text-violet-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
-
 
   return (
     <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -70,18 +78,22 @@ const Jobgrid = ({ jobs }) => {
                   </CardTitle>
                   <CardDescription className="flex items-center gap-1 mt-1 text-sm">
                     <Building className="w-4 h-4 flex-shrink-0" />
-                    <span className="truncate">{job.company?.name || 'Company Name'}</span>
+                    <span className="truncate">
+                      {job.company?.name || "Company Name"}
+                    </span>
                   </CardDescription>
                 </div>
-                <Badge 
-                  variant="secondary" 
-                  className={`shrink-0 ${getEmploymentTypeColor(job.employment_type)}`}
+                <Badge
+                  variant="secondary"
+                  className={`shrink-0 ${getEmploymentTypeColor(
+                    job.employment_type
+                  )}`}
                 >
                   {job.employment_type}
                 </Badge>
               </div>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               {/* Job Description */}
               <div>
@@ -89,20 +101,23 @@ const Jobgrid = ({ jobs }) => {
                   {job.description}
                 </p>
               </div>
-              
+
               {/* Location and Job Type */}
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <MapPin className="w-4 h-4 flex-shrink-0" />
                   <span className="truncate">{job.location}</span>
                 </div>
-                
-                <Badge variant="outline" className={getJobTypeColor(job.job_type)}>
+
+                <Badge
+                  variant="outline"
+                  className={getJobTypeColor(job.job_type)}
+                >
                   <Clock className="w-3 h-3 mr-1" />
                   {job.job_type}
                 </Badge>
               </div>
-              
+
               {/* Company Description */}
               {job.company?.description && (
                 <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded-md">
@@ -113,7 +128,7 @@ const Jobgrid = ({ jobs }) => {
                   <p className="line-clamp-2">{job.company.description}</p>
                 </div>
               )}
-              
+
               {/* Footer with Salary and Action */}
               <div className="flex items-center justify-between pt-3 border-t border-border">
                 <div className="flex items-center gap-1">
@@ -122,9 +137,9 @@ const Jobgrid = ({ jobs }) => {
                   </span>
                   <span className="text-xs text-muted-foreground">/year</span>
                 </div>
-                
-                <Button 
-                  size="sm" 
+
+                <Button
+                  size="sm"
                   variant="default"
                   className="hover:bg-primary/90 transition-colors"
                   onClick={(e) => handleApplyClick(e, job.id)}
@@ -132,8 +147,7 @@ const Jobgrid = ({ jobs }) => {
                   Apply Now
                 </Button>
               </div>
-
-             
+              <div>review</div>
             </CardContent>
           </Card>
         </Link>
