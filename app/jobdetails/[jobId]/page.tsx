@@ -1,13 +1,20 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 //@ts-nocheck
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+import React, { useState, useEffect, useContext } from "react";
+import { useParams, useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   MapPin,
   Building,
@@ -16,58 +23,60 @@ import {
   Briefcase,
   Users,
   ArrowLeft,
-  Star,
-  MessageSquare
-} from 'lucide-react'
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { AppContext } from "@/context/AppContext";
 
 const JobDetailPage = () => {
-  const params = useParams()
-  const router = useRouter()
-  const [jobData, setJobData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const jobId = params.jobId
+  const params = useParams();
+  const router = useRouter();
+  const [jobData, setJobData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [reviewPosted, setreviewPosted] = useState("");
+  const [reviewContent, setreviewContent] = useState("");
+  const { user } = useContext(AppContext);
+  const jobId = params.jobId;
 
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        setLoading(true)
-        const response = await fetch(`/api/job/${jobId}`)
-        const result = await response.json()
+        setLoading(true);
+        const response = await fetch(`/api/job/${jobId}`);
+        const result = await response.json();
 
         if (result.success) {
-          setJobData(result.data)
+          setJobData(result.data);
         } else {
-          setError(result.error || 'Failed to fetch job details')
+          setError(result.error || "Failed to fetch job details");
         }
       } catch (err) {
-        setError('An error occurred while fetching job details')
-        console.error('Error fetching job details:', err)
+        setError("An error occurred while fetching job details");
+        console.error("Error fetching job details:", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
     if (jobId) {
-      fetchJobDetails()
+      fetchJobDetails();
     }
-  }, [jobId])
+  }, [jobId]);
 
   const formatSalary = (salary) => {
     if (salary >= 100000) {
-      return `$${(salary / 1000).toFixed(0)}k`
+      return `$${(salary / 1000).toFixed(0)}k`;
     }
-    return `$${salary.toLocaleString()}`
-  }
+    return `$${salary.toLocaleString()}`;
+  };
 
   const getEmploymentTypeColor = () => {
-    return ''
-  }
+    return "";
+  };
 
   const getJobTypeColor = () => {
-    return ''
-  }
+    return "";
+  };
 
   if (loading) {
     return (
@@ -102,7 +111,7 @@ const JobDetailPage = () => {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !jobData) {
@@ -112,7 +121,8 @@ const JobDetailPage = () => {
           <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-2xl font-bold mb-2">Job Not Found</h2>
           <p className="text-muted-foreground mb-4">
-            {error || 'The job you are looking for does not exist or has been removed.'}
+            {error ||
+              "The job you are looking for does not exist or has been removed."}
           </p>
           <Button onClick={() => router.back()} variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -120,9 +130,69 @@ const JobDetailPage = () => {
           </Button>
         </div>
       </div>
-    )
+    );
   }
+  const handlereviewFormChange = (e) => {
+    const { value } = e.target;
+    setreviewContent(value);
+  };
+  const submitReview = async (e) => {
+    e.preventDefault();
 
+    try {
+      const response = await fetch("/api/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: reviewContent,
+          job_id: jobId,
+        }),
+      });
+
+      const responseData = await response.json();
+      console.log("API Response:", responseData); // Debug log
+
+      if (responseData.success) {
+        setreviewContent("");
+        setreviewPosted(
+          responseData.message || "Review submitted successfully!"
+        );
+      } else {
+        setreviewContent("");
+        setreviewPosted(responseData.error || "Failed to submit review");
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      setreviewPosted("An error occurred while submitting the review");
+    }
+  };
+  const handleApplyNow = async () => {
+    try {
+      const response = await fetch("/api/application", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          job_id: jobId,
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (responseData.success) {
+        console.log(responseData.message);
+        alert("Application submitted successfully!");
+      } else {
+        console.log("Error:", responseData.error);
+        alert("Error: " + responseData.error);
+      }
+    } catch (error) {
+      console.error("Application error:", error);
+      alert("Failed to submit application");
+    }
+  };
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       <div className="flex items-center gap-4 mb-6">
@@ -178,7 +248,11 @@ const JobDetailPage = () => {
               </div>
 
               <div className="flex gap-3">
-                <Button variant="outline" size="lg" className="flex-1 sm:flex-none">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="flex-1 sm:flex-none"
+                >
                   Apply Now
                 </Button>
                 <Button variant="outline" size="lg">
@@ -203,37 +277,51 @@ const JobDetailPage = () => {
               </div>
             </CardContent>
           </Card>
+          <Tabs defaultValue="GiveReview" className="w-[400px]">
+            <TabsList>
+              <TabsTrigger
+                value="GiveReview"
+                className="data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+              >
+                Give Review
+              </TabsTrigger>
 
-          {jobData.company.reviews && jobData.company.reviews.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5" />
-                  Company Reviews ({jobData.company.reviews.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {jobData.company.reviews.slice(0, 3).map((review) => (
-                    <div key={review.id} className="border-l-2 border-primary/20 pl-4">
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {review.content}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Star className="w-3 h-3" />
-                        <span>By {review.user.email}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {jobData.company.reviews.length > 3 && (
-                    <Button variant="outline" size="sm" className="w-full">
-                      View All Reviews ({jobData.company.reviews.length})
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+              <TabsTrigger
+                value="UsersReview"
+                className="data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+              >
+                Users Review
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="GiveReview">
+              <form
+                onSubmit={submitReview}
+                className="space-y-4 w-full max-w-sm"
+              >
+                <Input
+                  placeholder="Write your review..."
+                  type="text"
+                  name="content"
+                  required
+                  value={reviewContent}
+                  onChange={handlereviewFormChange}
+                />
+                <Button
+                  variant="outline"
+                  type="submit"
+                  className="w-1/2 bg-red-500"
+                >
+                  Submit Review
+                </Button>
+                {reviewPosted && (
+                  <p className="text-green-300">{reviewPosted}</p>
+                )}
+              </form>
+            </TabsContent>
+
+            <TabsContent value="UsersReview">bye</TabsContent>
+          </Tabs>
         </div>
 
         <div className="space-y-6">
@@ -263,7 +351,9 @@ const JobDetailPage = () => {
             <CardContent>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Employment Type:</span>
+                  <span className="text-muted-foreground">
+                    Employment Type:
+                  </span>
                   <Badge variant="outline" className={getEmploymentTypeColor()}>
                     {jobData.employment_type}
                   </Badge>
@@ -293,7 +383,11 @@ const JobDetailPage = () => {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant='outline' className="w-full bg-green-400">
+              <Button
+                onClick={handleApplyNow}
+                variant="outline"
+                className="w-full bg-green-400"
+              >
                 Apply Now
               </Button>
               <Button riant="outline" className="w-full bg-blue-400">
@@ -304,7 +398,7 @@ const JobDetailPage = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default JobDetailPage
+export default JobDetailPage;

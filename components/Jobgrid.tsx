@@ -69,7 +69,7 @@ const Jobgrid = ({ jobs }) => {
     <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {jobs.map((job) => (
         <Link href={`/jobdetails/${job.id}`} key={job.id} className="block">
-          <Card className="hover:shadow-lg transition-all h-[400px] duration-300  border-l-4 border-l-primary/20 hover:border-l-primary cursor-pointer">
+          <Card className="hover:shadow-lg transition-all h-[420px] duration-300  border-l-4 border-l-primary/20 hover:border-l-primary cursor-pointer">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start gap-3">
                 <div className="flex-1 min-w-0">
@@ -147,7 +147,6 @@ const Jobgrid = ({ jobs }) => {
                   Apply Now
                 </Button>
               </div>
-              <div>review</div>
             </CardContent>
           </Card>
         </Link>

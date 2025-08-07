@@ -16,7 +16,6 @@ export async function POST(request: Request) {
 
     const { name, description } = await request.json();
 
-    // Validate required fields
     if (!name || !description) {
       return NextResponse.json(
         { success: false, error: "Name and description are required" },
@@ -24,7 +23,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if user already has a company
     const existingCompany = await db.company.findFirst({
       where: {
         owner_id: sessionUser.id

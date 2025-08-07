@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 //@ts-nocheck
 "use client";
-
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import SearchForm from "./SearchForm";
 import { User, LogOut, Plus, Building, LogIn } from "lucide-react";
@@ -107,9 +107,9 @@ export default function Header() {
 
       if (data.success) {
         setIsAuthenticated(false);
-        // Redirect to login page or home page after successful logout
+       
         router.push("/sign-in");
-        router.refresh(); // Refresh to update the app state
+        router.refresh();
       } else {
         console.error("Logout failed:", data.error);
         alert("Failed to logout. Please try again.");
@@ -135,7 +135,6 @@ export default function Header() {
     <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
-          {/* Logo and Brand Name */}
           <div className="flex items-center gap-3">
             <svg
               viewBox="0 0 40 40"
@@ -162,7 +161,6 @@ export default function Header() {
                 </filter>
               </defs>
 
-              {/* Background circle */}
               <circle
                 cx="20"
                 cy="20"
@@ -171,7 +169,7 @@ export default function Header() {
                 filter="url(#logoGlow)"
               />
 
-              {/* Briefcase icon */}
+          
               <rect
                 x="12"
                 y="14"
@@ -235,20 +233,16 @@ export default function Header() {
                 />
               </circle>
             </svg>
-
-            {/* Brand name - visible only on big screens */}
             <h1 className="hidden lg:block text-xl font-bold text-white bg-gradient-to-r from-primary to-primary/80 bg-clip-text">
               Job Flow
             </h1>
           </div>
-
-          {/* Search Form using Shadcn */}
           <SearchForm />
 
-          {/* Profile Icon or Login Button */}
+
           <div className="flex items-center relative">
-            {isAuthenticated && user?.email ? (
-              // Show user dropdown when authenticated
+            { user?.email ? (
+          
               <>
                 <div
                   className="cursor-pointer p-2 rounded-full hover:bg-muted/50 transition-colors"
@@ -257,7 +251,7 @@ export default function Header() {
                   <User className="w-7 h-7 text-muted-foreground" />
                 </div>
 
-                {/* Dropdown Menu */}
+              
                 {showDropdown && (
                   <div className="absolute right-0 top-12 bg-black border border-gray-200 rounded-lg shadow-lg w-64 z-50">
                     <div className="p-4 border-b border-gray-100">
@@ -311,12 +305,19 @@ export default function Header() {
                         <LogOut className="w-4 h-4" />
                         {isLoggingOut ? "Logging out..." : "Log Out"}
                       </Button>
+                      {
+                        user.role === 'user' &&  <Link href="/applications"
+                        variant="ghost"
+                        className="w-[70%] justify-start gap-2 bg-blue-500 text-white hover:bg-red-500 mt-2 py-2 rounded-md px-2">
+                        View applied Jobs
+                      </Link> 
+                      }
                     </div>
                   </div>
                 )}
               </>
             ) : (
-              // Show login button when not authenticated
+           
               <Button
                 variant="default"
                 className="flex items-center gap-2 bg-primary hover:bg-primary/90"
@@ -327,7 +328,6 @@ export default function Header() {
               </Button>
             )}
 
-            {/* Overlay to close dropdown when clicking outside */}
             {showDropdown && (
               <div
                 className="fixed inset-0 z-40"

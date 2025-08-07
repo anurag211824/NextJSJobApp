@@ -123,7 +123,6 @@ const JobFilterSidebar = () => {
       </div>
 
       <div className="space-y-6">
-        {/* Employment Type */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Briefcase className="w-4 h-4" />
@@ -146,7 +145,6 @@ const JobFilterSidebar = () => {
           ))}
         </div>
 
-        {/* Salary Range */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <DollarSign className="w-4 h-4" />
@@ -194,7 +192,6 @@ const JobFilterSidebar = () => {
           ))}
         </div>
 
-        {/* Apply Filters Button */}
         <Button 
           className="w-full bg-blue-500 hover:bg-blue-600 text-white" 
           onClick={applyFilters}
