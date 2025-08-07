@@ -66,15 +66,15 @@ const Jobgrid = ({ jobs }) => {
   };
 
   return (
-    <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="max-w-[1300px] w-full mx-auto grid grid-cols-1 md:grid-cols-2 lg:md:grid-cols-3  gap-6">
       {jobs.map((job) => (
-        <Link href={`/jobdetails/${job.id}`} key={job.id} className="block">
-          <Card className="hover:shadow-lg transition-all h-[420px] duration-300  border-l-4 border-l-primary/20 hover:border-l-primary cursor-pointer">
+        <Link href={`/jobdetails/${job.id}`} key={job.id} className="block w-auto">
+          <Card className="hover:shadow-lg transition-all h-[450px] duration-300 border-l-4 border-l-primary/20 hover:border-l-primary cursor-pointer border-gray-100">
             <CardHeader className="pb-3">
-              <div className="flex justify-between items-start gap-3">
+              <div className="flex flex-col justify-between items-start gap-3">
                 <div className="flex-1 min-w-0">
                   <CardTitle className="text-lg font-bold line-clamp-2 text-foreground hover:text-primary transition-colors">
-                    {job.title}
+                    {job.title.slice(0,20)}
                   </CardTitle>
                   <CardDescription className="flex items-center gap-1 mt-1 text-sm">
                     <Building className="w-4 h-4 flex-shrink-0" />

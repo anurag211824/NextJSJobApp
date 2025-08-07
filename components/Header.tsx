@@ -9,6 +9,7 @@ import { useContext, useState, useEffect } from "react";
 import { AppContext } from "@/context/AppContext";
 import { Button } from "./ui/button";
 import { getSession } from "@/service/session";
+import MobileFilterSiderBar from "./MobileFilterSiderBar";
 
 export default function Header() {
   const pathname = usePathname();
@@ -134,8 +135,10 @@ export default function Header() {
   return (
     <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-3">
+      
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
+              <MobileFilterSiderBar/>
             <svg
               viewBox="0 0 40 40"
               className="w-10 h-10"

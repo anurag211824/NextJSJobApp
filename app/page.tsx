@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 //@ts-nocheck
+
 import JobFilterSidebar from "@/components/JobFilterSidebar";
 import Jobgrid from "@/components/Jobgrid";
-import UnauthorizedAlert from "@/components/UnauthorizedAlert";
+import MobileFilterSiderBar from "@/components/MobileFilterSiderBar";
+
 
 export default async function Home({ searchParams }) {
   const searchParamsObj = await searchParams;
@@ -32,17 +34,17 @@ export default async function Home({ searchParams }) {
   };
 
   const jobs = await getJobs();
-
   return (
-    <div className="flex flex-row min-h-screen bg-black">
-      <div className="w-60 border-r overflow-y-auto fixed h-screen z-10">
+     <div className="flex flex-row min-h-screen bg-black relative">
+      {/* Hidden on small screens, visible on md+ screens */}
+      <div className="hidden md:hidden lg:block w-60 border-r overflow-y-auto fixed h-screen z-10">
         <JobFilterSidebar/>
       </div>
-      <div className="flex-1 bg-black p-6 overflow-y-auto ml-60">
-        {/* Show unauthorized alert if user tried to access employer routes */}
-        {error === 'user_not_employer' && (
-          <UnauthorizedAlert userRole={userRole} />
-        )}
+    
+      
+      
+    
+      <div className="flex-1 bg-black p-6 lg:ml-60">
         <Jobgrid jobs={jobs}/>
       </div>
     </div>

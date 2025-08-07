@@ -1,17 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 //@ts-nocheck
 "use client";
-
-import React, { useContext, useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
-import { Filter, DollarSign, Briefcase, MapPin, RotateCcw } from 'lucide-react';
+import { DollarSign, Briefcase, MapPin, RotateCcw, Filter } from 'lucide-react';
 
 
-const JobFilterSidebar = () => {
+const JobFilterSidebar = ({handleShowSidebar}) => {
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -29,7 +28,7 @@ const JobFilterSidebar = () => {
   );
 
   // Predefined values
-  const employmentTypes = ['full-time', 'part-time', 'contract', 'internship'];
+  const employmentTypes = ['full-time', 'part-time', 'internship'];
   const jobTypes = ['Remote', 'On-site', 'Hybrid'];
   const minSalary = 0;
   const maxSalary = 200000;
@@ -79,7 +78,7 @@ const JobFilterSidebar = () => {
     if (salary > minSalary) {
       params.set('salary', salary.toString());
     }
-
+    handleShowSidebar()
     router.push(`/?${params.toString()}`);
   };
 
@@ -105,8 +104,9 @@ const JobFilterSidebar = () => {
       <div className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-lg font-semibold">
-            <Filter className="w-5 h-5" />
-            Filters
+             <Filter className="hidden md:block w-5 h-5" />
+              <span className='hidden lg:block'>Filter</span>
+           <button className="lg:hidden ml-2 mt-2" onClick={handleShowSidebar}>X</button>
           </div>
           {hasActiveFilters && (
             <Button 
@@ -122,7 +122,7 @@ const JobFilterSidebar = () => {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Briefcase className="w-4 h-4" />
