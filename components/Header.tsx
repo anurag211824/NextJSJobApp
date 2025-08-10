@@ -133,7 +133,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm">
+    <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm w-full">
       <div className="container mx-auto px-4 py-3">
       
         <div className="flex items-center justify-between gap-4">

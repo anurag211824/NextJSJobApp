@@ -5,7 +5,7 @@ import db from "@/service/prisma";
 export async function POST(request: NextRequest) {
   try {
     const { user_id, job_id } = await request.json();
-    
+
     if (!user_id || !job_id) {
       return NextResponse.json(
         { error: "User ID and Job ID are required" },
@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
     const existingApplication = await db.application.findFirst({
       where: {
         user_id: user_id,
-        job_id: job_id
-      }
+        job_id: job_id,
+      },
     });
 
     if (existingApplication) {
@@ -26,28 +26,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-     await db.application.create({
+    await db.application.create({
       data: {
         user_id,
-        job_id
+        job_id,
       },
     });
 
-    return NextResponse.json(
-        {success:true,
-         message:"Application Posted"
-        }
-    );
-
+    return NextResponse.json({ success: true, message: "Application Posted" });
   } catch (error) {
     console.log(error);
-    return NextResponse.json(
+    return NextResponse.json({
+      success: false,
+      error: "Failed to submit application",
+    });
+  }
+}
 
-      { 
-        success:false,
-        error: "Failed to submit application",
+export async function DELETE(request: NextRequest) {
+  const { jobId, userId } = await request.json();
+  try {
+    await db.application.deleteMany({
+      where: {
+        job_id: jobId,
+        user_id: userId,
+      },
+    });
 
-       }
-    );
+    return NextResponse.json({
+      success: true,
+      message: "Deleted your application",
+    });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({
+      success: false,
+      error: "Error deleting the application",
+    });
   }
 }

@@ -50,7 +50,40 @@ export async function POST(request: NextRequest) {
 }
 
 // get all review based on a JobId
-export async function GET (request:NextRequest){
+export async function GET(request: NextRequest) {
+  const { jobId } = await request.json();
 
+  try {
+    let reviews = await db.review.findMany({
+      where: {
+        job_id: jobId,
+      },
+    });
+
+    // If no reviews and job_id is not in review schema, fallback to company_id
+    if (!reviews || reviews.length === 0) {
+      const job = await db.openings.findUnique({
+        where: { id: jobId },
+      });
+      if (job) {
+        reviews = await db.review.findMany({
+          where: {
+            company_id: job.company_id,
+          },
+        });
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: reviews,
+    });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({
+      success: false,
+      data: [],
+    });
+  }
 }
 

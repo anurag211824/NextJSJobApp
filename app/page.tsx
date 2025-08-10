@@ -20,7 +20,7 @@ export default async function Home({ searchParams }) {
       if (salary) params.set('salary', salary);
 
       const response = await fetch(
-        `http://localhost:3000/api/search${params.toString() ? `?${params.toString()}` : ""}`
+        `http://localhost:3001/api/search${params.toString() ? `?${params.toString()}` : ""}`
       );
       const responseData = await response.json();
       

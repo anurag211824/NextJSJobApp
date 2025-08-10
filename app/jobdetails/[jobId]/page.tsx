@@ -26,8 +26,11 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AppContext } from "@/context/AppContext";
+import ApplicationButton from "@/components/ApplicationButton";
 
 const JobDetailPage = () => {
+  // eslint-disable-next-line prefer-const
+
   const params = useParams();
   const router = useRouter();
   const [jobData, setJobData] = useState(null);
@@ -37,6 +40,35 @@ const JobDetailPage = () => {
   const [reviewContent, setreviewContent] = useState("");
   const { user } = useContext(AppContext);
   const jobId = params.jobId;
+
+  const [hasApplied, setHasApplied] = useState(false);
+
+  useEffect(() => {
+    const checkApplication = async () => {
+      if (!user?.id || !jobId) return;
+      try {
+        const response = await fetch("/api/application/check", {
+          method: "POST",
+          body: JSON.stringify({
+            jobId: jobId,
+            userId: user.id,
+          }),
+        });
+        const responseData = await response.json();
+
+        if (responseData.success) {
+          setHasApplied(true);
+        } else {
+          setHasApplied(false);
+        }
+      } catch (error) {
+        console.log(error);
+        setHasApplied(false);
+      }
+    };
+    checkApplication();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobId]);
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -166,35 +198,8 @@ const JobDetailPage = () => {
       setreviewPosted("An error occurred while submitting the review");
     }
   };
-  const handleApplyNow = async () => {
-    try {
-      const response = await fetch("/api/application", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: user.id,
-          job_id: jobId,
-        }),
-      });
-
-      const responseData = await response.json();
-
-      if (responseData.success) {
-        console.log(responseData.message);
-        alert("Application submitted successfully!");
-      } else {
-        console.log("Error:", responseData.error);
-        alert("Error: " + responseData.error);
-      }
-    } catch (error) {
-      console.error("Application error:", error);
-      alert("Failed to submit application");
-    }
-  };
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-[1200px] w-full mx-auto p-3 space-y-6 overflow-hidden">
       <div className="flex items-center gap-4 mb-6">
         <Button
           onClick={() => router.back()}
@@ -297,10 +302,11 @@ const JobDetailPage = () => {
             <TabsContent value="GiveReview">
               <form
                 onSubmit={submitReview}
-                className="space-y-4 w-full max-w-sm"
+                className="space-y-4 w-full max-w-[300px]"
               >
                 <Input
                   placeholder="Write your review..."
+                  className="w-full"
                   type="text"
                   name="content"
                   required
@@ -320,7 +326,7 @@ const JobDetailPage = () => {
               </form>
             </TabsContent>
 
-            <TabsContent value="UsersReview">bye</TabsContent>
+            <TabsContent value="UsersReview"></TabsContent>
           </Tabs>
         </div>
 
@@ -383,13 +389,7 @@ const JobDetailPage = () => {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button
-                onClick={handleApplyNow}
-                variant="outline"
-                className="w-full bg-green-400"
-              >
-                Apply Now
-              </Button>
+              <ApplicationButton jobData={jobData} hasApplied={hasApplied} />
               <Button riant="outline" className="w-full bg-blue-400">
                 Save for Later
               </Button>
